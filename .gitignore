@@ -1,0 +1,28 @@
+# Secrets & Local Data
+.env
+*.json
+token.json
+client_secret_*.json
+data/
+logs/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+
+# Virtual Environment
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

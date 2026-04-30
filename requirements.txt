@@ -1,0 +1,20 @@
+# ===================================
+# AI Training Telegram Bot — Dependencies
+# ===================================
+
+# Telegram Bot Framework
+python-telegram-bot[ext]==21.10
+
+# Claude AI (Haiku — cost-effective)
+anthropic>=0.42.0
+
+# Google Drive API
+google-api-python-client>=2.160.0
+google-auth>=2.38.0
+google-auth-oauthlib>=1.2.1
+
+# Environment & Config
+python-dotenv>=1.1.0
+
+# Utilities
+aiohttp>=3.11.0
