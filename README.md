@@ -33,11 +33,15 @@ graph TD
 - **No Google Forms needed.** 
 - The moment a user searches the bot and sends `/start` or any text message, they are **automatically registered** and added to the `data/users.json` database.
 
-### 2. Daily Progressive Delivery (Set-and-Forget)
-- **Schedule:** Triggers daily at exactly **6:00 PM SE Asia Time**.
-- **Logic:** The bot polls the connected YouTube channel. It looks for videos with **"lesson"** in the title.
-- **Progressive Sharing:** It selects exactly **ONE** unshared video (the oldest available) and broadcasts it to all registered students.
-- **History Retention:** The bot *does not* delete previous messages. Students have a scrollable, permanent timeline of Lesson 1, Lesson 2, Lesson 3, etc.
+### 2. Zero-Touch Automated Delivery (Set-and-Forget)
+- **Schedule:** Triggers hourly in the background on **Monday, Tuesday, Wednesday, and Thursday**.
+- **Weekend Sleep:** The automation safely pauses on **Friday, Saturday, and Sunday** to give students a break. No videos will auto-send on weekends.
+- **Full Pipeline Logic:** 
+  1. The bot scans the connected **Google Drive folder**.
+  2. It automatically identifies the *oldest unsent* video (e.g. Lesson 2).
+  3. It downloads the video and securely uploads it to YouTube as **Unlisted**.
+  4. Once uploaded, it permanently logs the video ID to prevent duplicates and instantly broadcasts the inline YouTube link to all registered students.
+- **No Queueing Needed:** The bot requires absolute zero human effort. Uploading to Drive is the *only* step the instructor does.
 
 ### 3. Master AI Tutor (Claude Sonnet)
 - **Course Awareness:** The bot caches the entire Google Drive catalog in its system prompt but is strictly instructed **not to spam** the curriculum unless explicitly asked.
@@ -68,9 +72,7 @@ The platform is managed completely inside Telegram by the Admin (defined in `.en
 * `/users` — List all registered students and their status.
 * `/unmute <id>` — Restore access to a student who received 3 strikes.
 * `/broadcast <msg>` — Send an instant text announcement to all students.
-* `/addvideo <url> <title>` — Manually queue a video for the next 6:00 PM broadcast.
-* `/queue` — View all manually queued videos.
-* `/sendvideo` — Force an immediate broadcast of the next queued video.
+* `/uploadvideo` — Emergency Bypass. Forces the bot to immediately download the next unsent video from Drive, upload to YouTube, and broadcast it to students, bypassing the weekend sleep mode.
 
 ## 💻 Technical Setup
 
