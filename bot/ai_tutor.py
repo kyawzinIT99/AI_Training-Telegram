@@ -36,6 +36,22 @@ def _load_drive_catalog() -> str:
     Index all video titles from Google Drive for AI context.
     Returns a compact list string for the system prompt.
     """
+    context_string = ""
+    
+    # 1. Load Services & Pricing if available
+    try:
+        import json
+        with open("data/services.json", "r", encoding="utf-8") as f:
+            services = json.load(f)
+            if services:
+                context_string += "AVAILABLE CONSULTING & SERVICES (WITH PRICING):\n"
+                for s in services:
+                    context_string += f"• {s['service_name']} - ${s['price_usd']}: {s['description']}\n"
+                context_string += "\n"
+    except Exception:
+        pass
+
+    # 2. Load Drive Lessons
     try:
         from bot.drive_service import DriveService
         drive = DriveService()
@@ -47,12 +63,13 @@ def _load_drive_catalog() -> str:
                              .replace(".avi","").replace(".mkv","").strip()
                     for v in videos
                 ]
-                return "AVAILABLE LESSONS IN COURSE:\n" + "\n".join(
+                context_string += "AVAILABLE LESSONS IN COURSE:\n" + "\n".join(
                     f"• {t}" for t in titles
                 )
     except Exception:
         pass
-    return ""
+        
+    return context_string
 
 
 def _build_system_prompt(lesson_title: str, video_url: str, catalog: str) -> str:
