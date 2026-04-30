@@ -132,6 +132,15 @@ def main():
     )
     logger.info("⏰ Daily broadcast scheduled — Mon-Thu @ 06:00 PM SE Asia")
 
+    # ── Auto-upload from Google Drive to YouTube (Runs every hour) ──
+    app.job_queue.run_repeating(
+        auto_upload_job,
+        interval=HOURLY_INTERVAL,
+        first=10,  # Start 10 seconds after boot
+        name="auto_upload_drive_videos",
+    )
+    logger.info("⏰ Drive to YouTube auto-sync scheduled (runs hourly)")
+
     # Removed Google Form auto-sync (direct Telegram registration is now active)
 
     # ── Start polling ──
