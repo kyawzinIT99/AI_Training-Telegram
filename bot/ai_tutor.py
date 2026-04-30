@@ -66,6 +66,7 @@ ABOUT THE FOUNDER:
   * Email: itsolutions.mm@gmail.com
   * Phone/WhatsApp: +66949567820
   * Viber: +9595043252
+- If a user asks for our AI GitHub link, source code, or repository, you must provide this exact link: https://github.com/kyawzinIT99/AI-Training.git
 
 {today}
 {catalog}
