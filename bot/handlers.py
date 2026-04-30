@@ -324,8 +324,11 @@ async def uploadvideo_handler(update: Update, context: ContextTypes.DEFAULT_TYPE
         await msg.edit_text("📭 No videos found in Drive folder.")
         return
 
-    from bot.scheduler import _load_sent, add_to_queue
-    sent_ids = _load_sent()
+    from bot.scheduler import _load_processed, _save_processed, _broadcast_youtube_video
+    sent_ids = _load_processed()
+    
+    # Reverse to process oldest first (e.g. Lesson 2 before Lesson 5)
+    videos.reverse()
     unsent = next((v for v in videos if v["id"] not in sent_ids), None)
 
     if not unsent:
@@ -379,16 +382,20 @@ async def uploadvideo_handler(update: Update, context: ContextTypes.DEFAULT_TYPE
         await msg.edit_text("❌ YouTube upload failed. Check logs.")
         return
 
-    # Queue for broadcast
-    position = add_to_queue(result["url"], video_title)
+    # Mark as processed
+    sent_ids.append(unsent["id"])
+    _save_processed(sent_ids)
+
+    await msg.edit_text("✅ YouTube upload complete. Broadcasting to Telegram...")
+    
+    sent_count = await _broadcast_youtube_video(context, video_title, result["url"])
 
     await msg.edit_text(
-        f"🎉 <b>Upload Complete!</b>\n\n"
+        f"🎉 <b>Broadcast Complete!</b>\n\n"
         f"🎬 {video_title}\n"
         f"🔗 {result['url']}\n"
         f"👁 Visibility: Unlisted\n\n"
-        f"✅ Queued at position #{position}\n"
-        f"Use /sendvideo to broadcast now, or wait for 6AM.",
+        f"👥 Sent to {sent_count} students!",
         parse_mode="HTML"
     )
 
