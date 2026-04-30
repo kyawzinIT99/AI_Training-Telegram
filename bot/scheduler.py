@@ -179,13 +179,21 @@ async def _check_and_send_new_youtube(context, job_name: str):
 
 async def auto_upload_job(context):
     """Runs every hour — auto-downloads from Drive, uploads to YouTube, and broadcasts."""
+    import datetime
+    # 0=Mon, 1=Tue, 2=Wed, 3=Thu, 4=Fri, 5=Sat, 6=Sun
+    today = datetime.datetime.now().weekday()
+    if today in [4, 5, 6]:
+        logger.info("⏸️ [AutoUpload] Skipped: Today is Friday/Weekend. Auto-upload disabled.")
+        return
+        
     logger.info("🔍 [AutoUpload] Checking Google Drive for new videos...")
     
-    from bot.drive_service import drive
+    from bot.drive_service import DriveService
     from bot.youtube_service import YouTubeService
     from config.settings import ADMIN_TELEGRAM_ID
     import tempfile, os
 
+    drive = DriveService()
     if not drive.is_available():
         logger.warning("[AutoUpload] Drive not configured.")
         return
