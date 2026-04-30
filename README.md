@@ -4,6 +4,31 @@ A fully autonomous, premium Telegram Bot that serves as a **Master AI Tutor**. I
 
 ## 🚀 System Architecture & Flow
 
+```mermaid
+graph TD
+    User((Student / Client)) -->|Sends Message| Bot{Telegram Bot}
+
+    %% Daily Content Flow
+    YouTube[(YouTube / Drive)] -->|Video Found| Scheduler[Daily 6:00 PM Job]
+    Scheduler -->|Broadcast| Bot
+
+    %% Message Routing & Guards
+    Bot --> Guard[Spam & Cost Guard]
+    Guard -->|Over 500 chars / Media| Blocked[Reject Message]
+    Guard -->|Toxic / Bad Words| Strikes[3-Strike Filter]
+    Strikes -->|Strike 3| Muted[Auto-Mute]
+
+    %% AI Tutor Routing
+    Guard -->|Clean Text| Claude[Claude Sonnet AI Tutor]
+    
+    %% AI Responses
+    Claude -->|Consulting / AI Projects| Consult[Offer Assessment & Google Meet]
+    Consult --> Contacts[Hand off to Mr. Kyaw Zin Tun]
+    
+    Claude -->|Lesson Q&A| Tutor[Answer briefly in Bullet Points]
+    Tutor --> Tokens[Cap at 180 tokens]
+```
+
 ### 1. Registration (Zero-Friction)
 - **No Google Forms needed.** 
 - The moment a user searches the bot and sends `/start` or any text message, they are **automatically registered** and added to the `data/users.json` database.
