@@ -6,22 +6,22 @@ import os
 SERVICES = [
     {
         "service_name": "AI Consultation (1 Hour Google Meet)",
-        "price_usd": 150,
+        "price_usd": 100,
         "description": "A deep dive into your business to identify AI automation opportunities."
     },
     {
         "service_name": "Custom AI Telegram/Discord Bot",
-        "price_usd": 500,
+        "price_usd": 200,
         "description": "A fully autonomous, cost-optimized AI bot integrated with your data."
     },
     {
         "service_name": "Cloud Infrastructure Setup",
-        "price_usd": 800,
+        "price_usd": 400,
         "description": "Scalable cloud architecture deployment (AWS, GCP, or Modal)."
     },
     {
         "service_name": "Enterprise Network Automation",
-        "price_usd": 1200,
+        "price_usd": 800,
         "description": "Automated network provisioning and monitoring solutions."
     }
 ]
