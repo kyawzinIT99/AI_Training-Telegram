@@ -123,13 +123,14 @@ def main():
     # ── Register text message handler (AI Tutor) ──
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, message_handler))
 
-    # ── Daily video broadcast (6:00 AM SE Asia = 23:00 UTC) ──
+    # ── Daily video broadcast (Mon-Thu only) ──
     app.job_queue.run_daily(
         daily_video_job,
         time=DAILY_SEND_TIME,
+        days=(0, 1, 2, 3),  # Mon=0, Tue=1, Wed=2, Thu=3
         name="daily_video_broadcast",
     )
-    logger.info("⏰ Daily broadcast scheduled — 06:00 PM SE Asia")
+    logger.info("⏰ Daily broadcast scheduled — Mon-Thu @ 06:00 PM SE Asia")
 
     # Removed Google Form auto-sync (direct Telegram registration is now active)
 
