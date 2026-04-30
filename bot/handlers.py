@@ -447,6 +447,24 @@ async def message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.chat.send_action("typing")
     response = await tutor.ask(user.id, text)
 
+    # Check for secret lead generation flag
+    if "[LEAD_GENERATED]" in response:
+        response = response.replace("[LEAD_GENERATED]", "").strip()
+        from config.settings import ADMIN_TELEGRAM_ID
+        if ADMIN_TELEGRAM_ID:
+            try:
+                await context.bot.send_message(
+                    chat_id=int(ADMIN_TELEGRAM_ID),
+                    text=f"🚨 <b>NEW CONSULTING LEAD!</b>\n\n"
+                         f"👤 <b>User:</b> {user.full_name} (@{user.username or 'N/A'})\n"
+                         f"🆔 <b>ID:</b> {user.id}\n\n"
+                         f"They just agreed to schedule a Google Meet or proceed with a service!\n\n"
+                         f"<b>Their message:</b> <i>\"{text}\"</i>",
+                    parse_mode="HTML"
+                )
+            except Exception as e:
+                print(f"Error sending admin lead alert: {e}")
+
     if len(response) <= 4096:
         await update.message.reply_text(response)
     else:
