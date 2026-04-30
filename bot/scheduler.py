@@ -240,18 +240,17 @@ async def auto_upload_job(context):
         logger.error("[AutoUpload] YouTube upload failed.")
         return
 
-    # Mark as processed
+    # Mark as processed in Drive so it doesn't upload again
     processed_ids.append(unsent["id"])
     _save_processed(processed_ids)
 
-    logger.info("[AutoUpload] Broadcasting to Telegram...")
-    sent_count = await _broadcast_youtube_video(context, video_title, result["url"])
-
+    logger.info("[AutoUpload] 🤫 Uploaded to YouTube silently. Waiting for 6:00 PM schedule to broadcast.")
+    
     if ADMIN_TELEGRAM_ID:
         try:
             await context.bot.send_message(
                 chat_id=ADMIN_TELEGRAM_ID,
-                text=f"🤖 <b>Auto-Upload Complete!</b>\n\n🎬 {video_title}\n🔗 {result['url']}\n👥 Sent to {sent_count} students!",
+                text=f"🤫 <b>Auto-Upload Complete!</b>\n\n🎬 {video_title}\n🔗 {result['url']}\n\n<i>This video is now queued and will be sent to students at exactly 6:00 PM based on schedule.</i>",
                 parse_mode="HTML"
             )
         except Exception:
