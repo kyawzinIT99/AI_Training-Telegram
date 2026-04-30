@@ -415,6 +415,11 @@ async def message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not text:
         return
 
+    # ── Command Guard: Do not process random commands ──
+    if text.startswith("/"):
+        # Ignore unknown commands so we don't waste API tokens
+        return
+
     # ── Spam & API Cost Guard: Limit message length (skip for admin) ──
     if not is_admin(user.id) and len(text) > 500:
         await update.message.reply_text(
