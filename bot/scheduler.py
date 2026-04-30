@@ -178,9 +178,76 @@ async def _check_and_send_new_youtube(context, job_name: str):
 # ── Job 1: Hourly watcher ─────────────────────────────────
 
 async def auto_upload_job(context):
-    """Runs every hour — sends any new YouTube video immediately."""
-    logger.info("🔍 [AutoUpload] Hourly check...")
-    await _check_and_send_new_youtube(context, "AutoUpload")
+    """Runs every hour — auto-downloads from Drive, uploads to YouTube, and broadcasts."""
+    logger.info("🔍 [AutoUpload] Checking Google Drive for new videos...")
+    
+    from bot.drive_service import drive
+    from bot.youtube_service import YouTubeService
+    from config.settings import ADMIN_TELEGRAM_ID
+    import tempfile, os
+
+    if not drive.is_available():
+        logger.warning("[AutoUpload] Drive not configured.")
+        return
+
+    videos = drive.get_latest_videos(limit=5)
+    if not videos:
+        return
+
+    processed_ids = _load_processed()
+    videos.reverse()  # Process oldest first
+    unsent = next((v for v in videos if v["id"] not in processed_ids), None)
+
+    if not unsent:
+        return
+
+    logger.info(f"[AutoUpload] Downloading new video: {unsent['name']}")
+    video_title = unsent["name"].replace(".mov", "").replace(".mp4", "").strip()
+
+    with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as tmp:
+        tmp_path = tmp.name
+
+    downloaded = drive.download_file(unsent["id"], tmp_path)
+    if not downloaded:
+        logger.error("[AutoUpload] Drive download failed.")
+        os.unlink(tmp_path)
+        return
+
+    yt = YouTubeService()
+    if not yt.is_available():
+        logger.error("[AutoUpload] YouTube not authorized.")
+        os.unlink(tmp_path)
+        return
+
+    logger.info(f"[AutoUpload] Uploading to YouTube: {video_title}")
+    result = yt.upload_video(
+        file_path=tmp_path,
+        title=video_title,
+        description=f"AI Training Lesson: {video_title}\n\nWatch and learn with @Kyawzin_AIAutomation",
+        privacy="unlisted",
+    )
+    os.unlink(tmp_path)
+
+    if not result:
+        logger.error("[AutoUpload] YouTube upload failed.")
+        return
+
+    # Mark as processed
+    processed_ids.append(unsent["id"])
+    _save_processed(processed_ids)
+
+    logger.info("[AutoUpload] Broadcasting to Telegram...")
+    sent_count = await _broadcast_youtube_video(context, video_title, result["url"])
+
+    if ADMIN_TELEGRAM_ID:
+        try:
+            await context.bot.send_message(
+                chat_id=ADMIN_TELEGRAM_ID,
+                text=f"🤖 <b>Auto-Upload Complete!</b>\n\n🎬 {video_title}\n🔗 {result['url']}\n👥 Sent to {sent_count} students!",
+                parse_mode="HTML"
+            )
+        except Exception:
+            pass
 
 
 # ── Job 2: Daily 6AM broadcast ────────────────────────────
